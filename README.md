@@ -144,6 +144,38 @@ host -t PTR 10.47.2.2
 Supaya tetap bisa menghubungi Franky jika server EniesLobby rusak, maka buat Water7 sebagai DNS Slave untuk domain utama
 
 ### Jawaban
+Untuk membuat DNS Slave kami menjalankan perintah berikut :
+- Pada EniesLobby
+```
+echo -e 'zone "franky.t11.com" {\n    type master;\n    notify yes;\n    also-notify { 10.47.2.3; };\n    allow-transfer { 10.47.2.3; };\n    file "/etc/bind/kaizoku/franky.t11.com";\n};' >> /etc/bind/named.conf.local 
+service bind9 restart
+```
+Perintah echo digunakan untuk mencetak perintah berikut pada file /etc/bind/named.conf.local
+```
+zone "franky.t11.com" {
+    type master;
+    notify yes;
+    also-notify { 10.47.2.3; };
+    allow-transfer { 10.47.2.3; };
+    file "/etc/bind/kaizoku/franky.t11.com";
+};
+```
+
+- Pada Water7
+```
+apt-get update -y
+apt-get install bind9 -y
+echo -e 'zone "franky.t11.com" {\n    type slave;\n    masters { 10.47.2.2; };\n    file "/var/lib/bind/franky.t11.com";\n};' >> /etc/bind/named.conf.local
+service bind9 restart
+```
+Perintah echo digunakan untuk mencetak perintah berikut pada file /etc/bind/named.conf.local
+```
+zone "franky.t11.com" {
+    type slave;
+    masters { 10.47.2.2; };
+    file "/var/lib/bind/franky.t11.com";
+};
+```
 
 ## Soal 6
 Setelah itu terdapat subdomain ```mecha.franky.yyy.com``` dengan alias ```www.mecha.franky.yyy.com``` yang didelegasikan dari EniesLobby ke Water7 dengan IP menuju ke Skypie dalam folder sunnygo
