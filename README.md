@@ -12,6 +12,7 @@ EniesLobby akan dijadikan sebagai DNS Master, Water7 akan dijadikan DNS Slave, d
 
 ### Jawaban
 Untuk soal pertama ini kami membuat topologi sesuai dengan yang diperintahkan dalam soal.
+<br> <img src="/ss/1.JPG">
 
 Selanjutnya pada node ```Foosha``` kami menjalankan perintah ```iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 10.47.0.0/16``` untuk melakukan masquerade IP, dan setelah itu kami menjalankan perintah ```echo nameserver 192.168.122.1 > /etc/resolv.conf``` di setiap node yang lain, agar dapat terhubung dengan Foosha
 
@@ -71,6 +72,8 @@ Setelah itu kami melakukan perintah berikut ini di node Loguetown dan Alabasta y
 ```sed -i "1inameserver 10.47.2.2" /etc/resolv.conf```<br>
 perintah tersebut berarti memasukkan IP EniesLobby ke ```etc/resolv.conf``` milik Loguetown dan Alabasta agar mereka dapat terhubung ke EniesLobby
 
+<br> <img src="/ss/2.JPG">
+
 ## Soal 3
 Setelah itu buat subdomain ```super.franky.yyy.com``` dengan alias ```www.super.franky.yyy.com``` yang diatur DNS nya di EniesLobby dan mengarah ke Skypie
 
@@ -87,6 +90,8 @@ super       IN      A       10.47.2.4
 www.super       IN      CNAME       super.franky.t11.com.
 ```
 Sehingga subdomain super. akan mengarah ke skypie
+
+<br> <img src="/ss/3.JPG">
 
 ## Soal 4
 Buat juga reverse domain untuk domain utama
@@ -140,6 +145,8 @@ apt-get install dnsutils -y
 host -t PTR 10.47.2.2
 ```
 
+<br> <img src="/ss/4.JPG">
+
 ## Soal 5
 Supaya tetap bisa menghubungi Franky jika server EniesLobby rusak, maka buat Water7 sebagai DNS Slave untuk domain utama
 
@@ -176,6 +183,8 @@ zone "franky.t11.com" {
     file "/var/lib/bind/franky.t11.com";
 };
 ```
+<br> <img src="/ss/5.JPG">
+<br> <img src="/ss/6.JPG">
 
 ## Soal 6
 Setelah itu terdapat subdomain ```mecha.franky.yyy.com``` dengan alias ```www.mecha.franky.yyy.com``` yang didelegasikan dari EniesLobby ke Water7 dengan IP menuju ke Skypie dalam folder sunnygo
@@ -277,6 +286,8 @@ www     IN      CNAME   mecha.franky.t11.com.
 @       IN      AAAA    ::1
 ```
 Selanjutnya kita restart bind9
+
+<br> <img src="/ss/7.JPG">
 ## Soal 7
 Untuk memperlancar komunikasi Luffy dan rekannya, dibuatkan subdomain melalui Water7 dengan nama ```general.mecha.franky.yyy.com``` dengan alias ```www.general.mecha.franky.yyy.com``` yang mengarah ke Skypie
 
