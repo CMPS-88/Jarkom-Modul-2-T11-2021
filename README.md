@@ -181,6 +181,49 @@ zone "franky.t11.com" {
 Setelah itu terdapat subdomain ```mecha.franky.yyy.com``` dengan alias ```www.mecha.franky.yyy.com``` yang didelegasikan dari EniesLobby ke Water7 dengan IP menuju ke Skypie dalam folder sunnygo
 
 ### Jawaban
+Pada soal ini kami menjalankan perintah sebagai berikut :
+- Pada EniesLobby
+```
+sed -i "17ins1             IN      A       10.47.2.3" /etc/bind/kaizoku/franky.t11.com
+sed -i "18imecha           IN      NS      ns1" /etc/bind/kaizoku/franky.t11.com
+sed -i "s_dnssec-validation auto;_//dnssec-validation auto;_g" /etc/bind/named.conf.options
+sed -i "22i     allow-query{any;};" /etc/bind/named.conf.options
+service bind9 restart
+```
+Dua perintah berikut bertujuan untuk memasukkan konfigurasi pada file /etc/bind/kaizoku/franky.t11.com
+```
+sed -i "17ins1             IN      A       10.47.2.3" /etc/bind/kaizoku/franky.t11.com
+sed -i "18imecha           IN      NS      ns1" /etc/bind/kaizoku/franky.t11.com
+```
+Sehingga menjadi sebagai berikut
+```
+ns1             IN      A       10.47.2.3
+mecha           IN      NS      ns1
+```
+
+Sedangkan untuk dua perintah berikut bertujuan untuk mengubah setting pada file ```/etc/bind/named.conf.options```
+```
+sed -i "s_dnssec-validation auto;_//dnssec-validation auto;_g" /etc/bind/named.conf.options
+sed -i "22i     allow-query{any;};" /etc/bind/named.conf.options
+```
+Sehingga menjadi 
+```
+//dnssec-validation auto;
+allow-query{any;};
+```
+Selanjutnya kita restart bind9
+
+- Pada Water7
+Pada Water7 kami menjalankan perintah berikut :
+```
+sed -i "s_dnssec-validation auto;_//dnssec-validation auto;_g" /etc/bind/named.conf.options
+sed -i "22i     allow-query{any;};" /etc/bind/named.conf.options
+sed -i '8izone "mecha.franky.t11.com" {\n        type master;\n        file "/etc/bind/sunnygo/mecha.franky.t11.com";\n};' /etc/bind/named.conf.local
+mkdir /etc/bind/sunnygo
+cp /etc/bind/db.local /etc/bind/sunnygo/mecha.franky.t11.com
+echo -e ';\n; BIND data file for local loopback interface\n;\n$TTL    604800\n@       IN      SOA     mecha.franky.t11.com. root.mecha.franky.t11.com. (\n                              2         ; Serial\n                         604800         ; Refresh\n                          86400         ; Retry\n                        2419200         ; Expire\n                         604800 )       ; Negative Cache TTL\n;\n@       IN      NS      mecha.franky.t11.com.\n@       IN      A       10.47.2.4\n@       IN      AAAA    ::1' > /etc/bind/sunnygo/mecha.franky.t11.com
+service bind9 restart
+```
 
 ## Soal 7
 Untuk memperlancar komunikasi Luffy dan rekannya, dibuatkan subdomain melalui Water7 dengan nama ```general.mecha.franky.yyy.com``` dengan alias ```www.general.mecha.franky.yyy.com``` yang mengarah ke Skypie
