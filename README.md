@@ -93,3 +93,7 @@ Dan setiap kali mengakses IP Skypie akan dialihkan secara otomatis ke ```www.fra
 Dikarenakan Franky juga ingin mengajak temannya untuk dapat menghubunginya melalui website ```www.super.franky.yyy.com```, dan dikarenakan pengunjung web server pasti akan bingung dengan randomnya images yang ada, maka Franky juga meminta untuk mengganti request gambar yang memiliki substring “franky” akan diarahkan menuju ```franky.png```
 
 ### Jawaban
+
+## Kendala
+1. Ada beberapa konfigurasi yang belum kami mengerti sehingga harus mencari referensi dan memakan banyak waktu.
+2. Ada beberapa perintah bash yang belum kami mengerti sehingga kami harus mencoba-coba untuk beberapa perintah bash.
