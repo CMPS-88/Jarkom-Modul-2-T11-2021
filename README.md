@@ -75,11 +75,70 @@ perintah tersebut berarti memasukkan IP EniesLobby ke ```etc/resolv.conf``` mili
 Setelah itu buat subdomain ```super.franky.yyy.com``` dengan alias ```www.super.franky.yyy.com``` yang diatur DNS nya di EniesLobby dan mengarah ke Skypie
 
 ### Jawaban
+Untuk soal nomor 3 kami menggunakan perintah sebagai berikut :
+- Pada EniesLobby
+```
+echo -e ';\n; BIND data file for local loopback interface\n;\n$TTL\t604800\n@       IN      SOA     franky.t11.com. root.franky.t11.com. (\n                              2         ; Serial\n                         604800         ; Refresh\n                          86400         ; Retry\n                        2419200         ; Expire\n                         604800 )       ; Negative Cache TTL\n;\n@       IN      NS      franky.t11.com.\n@       IN      A       10.47.2.2\nwww       IN      CNAME       franky.t11.com.\nsuper       IN      A       10.47.2.4\nwww.super       IN      CNAME       super.franky.t11.com.\n@       IN      AAAA    ::1' > /etc/bind/kaizoku/franky.t11.com
+service bind9 restart
+```
+yang penting dari perintah diatas adalah konfigurasi berikut :
+```
+super       IN      A       10.47.2.4
+www.super       IN      CNAME       super.franky.t11.com.
+```
+Sehingga subdomain super. akan mengarah ke skypie
 
 ## Soal 4
 Buat juga reverse domain untuk domain utama
 
 ### Jawaban
+Untuk soal nomor 4 kami menjalankan perintah berikut
+- Pada EniesLobby
+```
+echo -e 'zone "2.47.10.in-addr.arpa" {\n\ttype master;\n\tfile "/etc/bind/kaizoku/2.47.10.in-addr.arpa";\n};' >> /etc/bind/named.conf.local
+cp /etc/bind/db.local /etc/bind/kaizoku/2.47.10.in-addr.arpa
+echo -e ';\n; BIND data file for local loopback interface\n;\n$TTL\t604800\n@       IN      SOA     franky.t11.com. root.franky.t11.com. (\n                              2         ; Serial\n                         604800         ; Refresh\n                          86400         ; Retry\n                        2419200         ; Expire\n                         604800 )       ; Negative Cache TTL\n;\n2.47.10.in-addr.arpa.       IN      NS      franky.t11.com.\n2           IN      PTR franky.t11.com.\n@       IN      AAAA    ::1' > /etc/bind/kaizoku/2.47.10.in-addr.arpa
+service bind9 restart
+```
+perintah<br>
+```
+echo -e 'zone "2.47.10.in-addr.arpa" {\n\ttype master;\n\tfile "/etc/bind/kaizoku/2.47.10.in-addr.arpa";\n};' >> /etc/bind/named.conf.local
+```
+Berfungsi untuk mengkonfigurasi /etc/bind/named.conf.local, sehingga berbentuk seperti berikut :
+```
+zone "2.47.10.in-addr.arpa" {
+        type master;
+        file "/etc/bind/kaizoku/2.47.10.in-addr.arpa";
+};
+```
+sedangkan perintah ```cp /etc/bind/db.local /etc/bind/kaizoku/2.47.10.in-addr.arpa``` bertujuan untuk melakukan copy file konfigurasi yang selanjutnya dimasukkan konfigurasi sebagai berikut :
+```
+echo -e ';\n; BIND data file for local loopback interface\n;\n$TTL\t604800\n@       IN      SOA     franky.t11.com. root.franky.t11.com. (\n                              2         ; Serial\n                         604800         ; Refresh\n                          86400         ; Retry\n                        2419200         ; Expire\n                         604800 )       ; Negative Cache TTL\n;\n2.47.10.in-addr.arpa.       IN      NS      franky.t11.com.\n2           IN      PTR franky.t11.com.\n@       IN      AAAA    ::1' > /etc/bind/kaizoku/2.47.10.in-addr.arpa
+```
+yang apabila dijalankan akan berbentuk sebagai berikut :
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     franky.t11.com. root.franky.t11.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+2.47.10.in-addr.arpa.       IN      NS      franky.t11.com.
+2               IN      PTR franky.t11.com.
+@       IN      AAAA    ::1
+```
+Terakhir kita restart bind9
+- Pada Loguetown dan Alabasta
+Pada Loguetown dan Alabasta kita jalankan perintah berikut untuk memastikan bahwa reverse DNS berfungsi dengan baik
+```
+apt-get install dnsutils -y
+host -t PTR 10.47.2.2
+```
 
 ## Soal 5
 Supaya tetap bisa menghubungi Franky jika server EniesLobby rusak, maka buat Water7 sebagai DNS Slave untuk domain utama
