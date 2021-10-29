@@ -222,9 +222,61 @@ sed -i '8izone "mecha.franky.t11.com" {\n        type master;\n        file "/et
 mkdir /etc/bind/sunnygo
 cp /etc/bind/db.local /etc/bind/sunnygo/mecha.franky.t11.com
 echo -e ';\n; BIND data file for local loopback interface\n;\n$TTL    604800\n@       IN      SOA     mecha.franky.t11.com. root.mecha.franky.t11.com. (\n                              2         ; Serial\n                         604800         ; Refresh\n                          86400         ; Retry\n                        2419200         ; Expire\n                         604800 )       ; Negative Cache TTL\n;\n@       IN      NS      mecha.franky.t11.com.\n@       IN      A       10.47.2.4\n@       IN      AAAA    ::1' > /etc/bind/sunnygo/mecha.franky.t11.com
+sed -i "14iwww     IN      CNAME   mecha.franky.t11.com." /etc/bind/sunnygo/mecha.franky.t11.com
 service bind9 restart
 ```
+dua perintah awal digunakan untuk mengkonfigurasi file ```/etc/bind/named.conf.options```
+```
+sed -i "s_dnssec-validation auto;_//dnssec-validation auto;_g" /etc/bind/named.conf.options
+sed -i "22i     allow-query{any;};" /etc/bind/named.conf.options
+```
+sehingga menjadi seperti berikut
+```
+        //dnssec-validation auto;
+allow-query{any;};
+```
+Perintah berikut digunakan untuk mengkonfigurasi file /etc/bind/named.conf.local
+```
+sed -i '8izone "mecha.franky.t11.com" {\n        type master;\n        file "/etc/bind/sunnygo/mecha.franky.t11.com";\n};' /etc/bind/named.conf.local
+```
+sehingga menjadi seperti berikut
+```
+zone "mecha.franky.t11.com" {
+        type master;
+        file "/etc/bind/sunnygo/mecha.franky.t11.com";
+};
+```
 
+Dua perintah berikut ini digunakan untuk membuat folder ```sunnygo``` dan membuat file konfigurasi
+```
+mkdir /etc/bind/sunnygo
+cp /etc/bind/db.local /etc/bind/sunnygo/mecha.franky.t11.com
+```
+
+Sedangkan perintah berikut digunakan untuk mengkonfigurasi file ```etc/bind/sunnygo/mecha.franky.t11.com```
+```
+echo -e ';\n; BIND data file for local loopback interface\n;\n$TTL    604800\n@       IN      SOA     mecha.franky.t11.com. root.mecha.franky.t11.com. (\n                              2         ; Serial\n                         604800         ; Refresh\n                          86400         ; Retry\n                        2419200         ; Expire\n                         604800 )       ; Negative Cache TTL\n;\n@       IN      NS      mecha.franky.t11.com.\n@       IN      A       10.47.2.4\n@       IN      AAAA    ::1' > /etc/bind/sunnygo/mecha.franky.t11.com
+sed -i "14iwww     IN      CNAME   mecha.franky.t11.com." /etc/bind/sunnygo/mecha.franky.t11.com
+```
+Sehingga menjadi
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     mecha.franky.t11.com. root.mecha.franky.t11.com. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      mecha.franky.t11.com.
+@       IN      A       10.47.2.4
+www     IN      CNAME   mecha.franky.t11.com.
+@       IN      AAAA    ::1
+```
+Selanjutnya kita restart bind9
 ## Soal 7
 Untuk memperlancar komunikasi Luffy dan rekannya, dibuatkan subdomain melalui Water7 dengan nama ```general.mecha.franky.yyy.com``` dengan alias ```www.general.mecha.franky.yyy.com``` yang mengarah ke Skypie
 
