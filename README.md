@@ -351,26 +351,117 @@ sed -i "22iErrorDocument 404 /error/404.html" /etc/apache2/sites-available/super
 Luffy juga meminta Nami untuk dibuatkan konfigurasi virtual host. Virtual host ini bertujuan untuk dapat mengakses file asset ```www.super.franky.yyy.com/public/js``` menjadi ```www.super.franky.yyy.com/js```
 
 ### Jawaban
+Melakukan konfigurasi dengan cara berikut :
+```
+sed -i "15iServerAlias www.super.franky.t11.com" /etc/apache2/sites-available/super.franky.t11.com.conf
+
+```
 
 ## Soal 14
 Dan Luffy meminta untuk web ```www.general.mecha.franky.yyy.com``` hanya bisa diakses dengan port 15000 dan port 15500
 
 ### Jawaban
+Melakukan konfigurasi dengan cara berikut :
+```
+cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/15000-general.mecha.franky.t11.com.conf
+
+sed -i "s_DocumentRoot /var/www/html_DocumentRoot /var/www/general.mecha.franky.t11_g" /etc/apache2/sites-available/15000-general.mecha.franky.t11.com.conf
+sed -i 1d /etc/apache2/sites-available/15000-general.mecha.franky.t11.com.conf
+sed -i "1i<VirtualHost *:15000>" /etc/apache2/sites-available/15000-general.mecha.franky.t11.com.conf
+sed -i "14iServerName general.mecha.franky.t11.com" /etc/apache2/sites-available/15000-general.mecha.franky.t11.com.conf
+sed -i "15iServerAlias www.general.mecha.franky.t11.com" /etc/apache2/sites-available/15000-general.mecha.franky.t11.com.conf
+
+cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/15500-general.mecha.franky.t11.com.conf
+
+sed -i "s_DocumentRoot /var/www/html_DocumentRoot /var/www/general.mecha.franky.t11_g" /etc/apache2/sites-available/15500-general.mecha.franky.t11.com.conf
+sed -i 1d /etc/apache2/sites-available/15500-general.mecha.franky.t11.com.conf
+sed -i "1i<VirtualHost *:15500>" /etc/apache2/sites-available/15500-general.mecha.franky.t11.com.conf
+sed -i "14iServerName general.mecha.franky.t11.com" /etc/apache2/sites-available/15500-general.mecha.franky.t11.com.conf
+sed -i "15iServerAlias www.general.mecha.franky.t11.com" /etc/apache2/sites-available/15500-general.mecha.franky.t11.com.conf
+sed -i "6iListen 15000" /etc/apache2/ports.conf
+sed -i "7iListen 15500" /etc/apache2/ports.conf
+
+a2ensite 15000-general.mecha.franky.t11.com.conf
+a2ensite 15500-general.mecha.franky.t11.com.conf
+
+```
 
 ## Soal 15
 dengan autentikasi username luffy dan password onepiece dan file di ```/var/www/general.mecha.franky.yyy```
 
 ### Jawaban
+Pertama membuat file php pada Skypie dengan username luffy dan password onepiece
+```
+echo -e '<?php\nif (isset($_POST["submit"])) {\n$username = $_POST["username"];\n$password = $_POST["password"];\nif ($username == "luffy" && $password == "onepiece"){\nheader("Location: http://www.general.mecha.franky.t11.com:15000/file");\ndie();\n}\nelse {\necho "salah";\n}\n}\n?>\n<!DOCTYPE html>\n<html>\n<head>\n<title>Form</title>\n</head>\n<body>\n<form action = "" method = "post">\nusername : <input type = "text" name = "username"/>\n<br><br>\npassword : <input type = "password" name = "password"/>\n<br><br>\n<input type = "submit" name = "submit" value = "Submit">\n</form>\n</body>\n</html>' > /var/www/general.mecha.franky.t11/index.php
+
+```
+
+Maka akan menghasilkan seperti berikut:
+```
+<?php
+if (isset($_POST['submit'])) {
+ $username = $_POST['username'];
+ $password = $_POST['password'];
+ if ($username == "luffy" && $password == "onepiece"){ 
+  header("Location: http://www.general.mecha.franky.t11.com:15000/file");
+  die();
+ }
+ else {
+  echo "salah";
+ }
+}
+?>
+<!DOCTYPE html>
+<html>
+ <head>
+  <title>Form</title>
+ </head>
+
+ <body>
+  
+  <!-- form tag to create form -->
+  <form action = "" method = "post">
+   
+   username : <input type = "text" name = "username"/>
+    
+   <br><br>
+   
+   password : <input type = "password" name = "password"/>
+   
+   <br><br>
+   
+   <input type = "submit" name = "submit" value = "Submit">
+  </form>
+ 
+ </body>
+</html>
+
+```
 
 ## Soal 16
 Dan setiap kali mengakses IP Skypie akan dialihkan secara otomatis ke ```www.franky.yyy.com```
 
 ### Jawaban
+Melakukan konfigurasi terhadap Skypie dengan cara berikut :
+```
+echo -e "<VirtualHost *:80>\nServerName 10.47.2.4\nRedirect permanent / http://www.franky.t11.com/\n</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
+
+```
 
 ## Soal 17
 Dikarenakan Franky juga ingin mengajak temannya untuk dapat menghubunginya melalui website ```www.super.franky.yyy.com```, dan dikarenakan pengunjung web server pasti akan bingung dengan randomnya images yang ada, maka Franky juga meminta untuk mengganti request gambar yang memiliki substring “franky” akan diarahkan menuju ```franky.png```
 
 ### Jawaban
+Membuat konfigurasi di file .htaccess:
+```
+a2enmod rewrite
+service apache2 restart
+touch /var/www/super.franky.t11.com/.htaccess
+echo -e "RewriteEngine On\nRewriteCond %{REQUEST_URI} !^/public/images/franky.png$\nRewriteCond %{REQUEST_FILENAME} !-d \nRewriteRule ^(.*)franky(.*)$ http://super.franky.t11.com/public/images/franky.png [R=301,L]" > /var/www/super.franky.t11.com/.htaccess
+sed -i "22i<Directory /var/www/super.franky.t11.com>\n     Options +FollowSymLinks -Multiviews\n     AllowOverride All\n </Directory>" /etc/apache2/sites-available/super.franky.t11.com.conf
+service apache2 restart
+
+```
 
 ## Kendala
 1. Ada beberapa konfigurasi yang belum kami mengerti sehingga harus mencari referensi dan memakan banyak waktu.
