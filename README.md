@@ -292,34 +292,61 @@ Selanjutnya kita restart bind9
 Untuk memperlancar komunikasi Luffy dan rekannya, dibuatkan subdomain melalui Water7 dengan nama ```general.mecha.franky.yyy.com``` dengan alias ```www.general.mecha.franky.yyy.com``` yang mengarah ke Skypie
 
 ### Jawaban
+Caranya kami konfigurasi di Water7:
+```
+echo -e ';\n; BIND data file for local loopback interface\n;\n$TTL    604800\n@       IN      SOA     mecha.franky.t11.com. root.mecha.franky.t11.com. (\n                              2         ; Serial\n                         604800         ; Refresh\n                          86400         ; Retry\n                        2419200         ; Expire\n                         604800 )       ; Negative Cache TTL\n;\n@       IN      NS      mecha.franky.t11.com.\n@       IN      A       10.47.2.4\n@       IN      AAAA    ::1' > /etc/bind/sunnygo/mecha.franky.t11.com
+```
 
 ## Soal 8
 Setelah melakukan konfigurasi server, maka dilakukan konfigurasi Webserver. Pertama dengan webserver ```www.franky.yyy.com```. Pertama, luffy membutuhkan webserver dengan DocumentRoot pada ```/var/www/franky.yyy.com```
 
 ### Jawaban
+Caranya adalah menkonfigurasi pada EniesLobby dengan cara :
+```
+sed -i "s_DocumentRoot /var/www/html_DocumentRoot /var/www/franky.t11.com_g" /etc/apache2/sites-available/franky.t11.com.conft
 
+```
 
 ## Soal 9
 Setelah itu, Luffy juga membutuhkan agar url ```www.franky.yyy.com/index.php/home``` dapat menjadi menjadi ```www.franky.yyy.com/home```. 
 
 ### Jawaban
+Caranya adalah menkonfigurasi pada Skypie
+```
+sed -i '16iAlias "/home" "/var/www/franky.t11.com/index.php/home"' /etc/apache2/sites-available/franky.t11.com.conf
 
+```
 
 ## Soal 10
 Setelah itu, pada subdomain ```www.super.franky.yyy.com```, Luffy membutuhkan penyimpanan aset yang memiliki DocumentRoot pada ```/var/www/super.franky.yyy.com```
 
 ### Jawaban
+Caranya dengan menkonfigurasi pada Skypie : 
+```
+sed -i '23iAlias "/js" "/var/www/super.franky.t11.com/public/js"' /etc/apache2/sites-available/super.franky.t11.com.conf
+
+```
 
 ## Soal 11
 Akan tetapi, pada folder ```/public```, Luffy ingin hanya dapat melakukan directory listing saja.
 
 ### Jawaban
+Caranya dengan menkonfigurasi kode di Skypie:
+```
+sed -i "16i<Directory /var/www/super.franky.t11.com/public>\n    Options +Indexes\n</Directory>" /etc/apache2/sites-available/super.franky.t11.com.conf
+
+```
 
 ## Soal 12
 Tidak hanya itu, Luffy juga menyiapkan error file ```404.html``` pada folder ```/error``` untuk mengganti error kode pada apache
 
 ### Jawaban
+Caranya dengan menkonfigurasi di Skypie dengan : 
+```
+sed -i "19i<Directory /var/www/super.franky.t11.com/error>\n    Options -Indexes\n</Directory>" /etc/apache2/sites-available/super.franky.t11.com.conf
+sed -i "22iErrorDocument 404 /error/404.html" /etc/apache2/sites-available/super.franky.t11.com.conf
 
+```
 ## Soal 13
 Luffy juga meminta Nami untuk dibuatkan konfigurasi virtual host. Virtual host ini bertujuan untuk dapat mengakses file asset ```www.super.franky.yyy.com/public/js``` menjadi ```www.super.franky.yyy.com/js```
 
